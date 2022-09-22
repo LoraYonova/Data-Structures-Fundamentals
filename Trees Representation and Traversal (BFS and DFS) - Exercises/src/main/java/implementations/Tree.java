@@ -2,9 +2,7 @@ package implementations;
 
 import interfaces.AbstractTree;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Tree<E> implements AbstractTree<E> {
@@ -71,7 +69,22 @@ public class Tree<E> implements AbstractTree<E> {
 
     @Override
     public List<E> getLeafKeys() {
-        return null;
+        List<E> result = new ArrayList<>();
+        Deque<Tree<E>> queue = new ArrayDeque<>();
+        queue.offer(this);
+
+        while (queue.size() > 0) {
+            Tree<E> current = queue.poll();
+
+            for (Tree<E> child : current.children) {
+                if (child.children.size() == 0) {
+                    result.add(child.value);
+                }
+                queue.offer(child);
+            }
+        }
+
+        return result.stream().sorted().collect(Collectors.toList());
     }
 
     @Override
