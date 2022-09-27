@@ -116,18 +116,7 @@ public class Tree<E> implements AbstractTree<E> {
     @Override
     public Tree<E> getDeepestLeftmostNode() {
 
-        List<Tree<E>> tree = new ArrayList<>();
-        Deque<Tree<E>> queue = new ArrayDeque<>();
-        queue.offer(this);
-
-        while (queue.size() > 0) {
-            Tree<E> current = queue.poll();
-
-            for (Tree<E> child : current.children) {
-                tree.add(child);
-                queue.offer(child);
-            }
-        }
+        List<Tree<E>> tree = getTreesBfs();
 
         Tree<E> deepestLeftmostNode = null;
 
@@ -144,6 +133,22 @@ public class Tree<E> implements AbstractTree<E> {
         }
 
         return deepestLeftmostNode;
+    }
+
+    private List<Tree<E>> getTreesBfs() {
+        List<Tree<E>> tree = new ArrayList<>();
+        Deque<Tree<E>> queue = new ArrayDeque<>();
+        queue.offer(this);
+
+        while (queue.size() > 0) {
+            Tree<E> current = queue.poll();
+
+            for (Tree<E> child : current.children) {
+                tree.add(child);
+                queue.offer(child);
+            }
+        }
+        return tree;
     }
 
     private int getStepsFromLeftToRoot(Tree<E> eTree) {
@@ -164,8 +169,35 @@ public class Tree<E> implements AbstractTree<E> {
 
     @Override
     public List<E> getLongestPath() {
-        return null;
+
+        List<Tree<E>> trees = getTreesBfs();
+
+        List<E> longestPath = new ArrayList<>();
+        int path = 0;
+
+        for (Tree<E> tree : trees) {
+            List<E> currentElements = new ArrayList<>();
+            int currentPath = 0;
+
+            while (tree.parent != null) {
+                currentPath++;
+                currentElements.add(tree.value);
+                tree = tree.parent;
+            }
+
+            if (currentPath > path) {
+                path = currentPath;
+                longestPath = currentElements;
+            }
+        }
+        longestPath.add(this.value);
+        Collections.reverse(longestPath);
+
+        return longestPath;
     }
+
+
+
 
     @Override
     public List<List<E>> pathsWithGivenSum(int sum) {
