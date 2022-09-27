@@ -1,6 +1,7 @@
 package implementations;
 
 import interfaces.AbstractTree;
+import org.w3c.dom.Node;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -9,6 +10,7 @@ public class Tree<E> implements AbstractTree<E> {
     private E value;
     private Tree<E> parent;
     private List<Tree<E>> children;
+
 
     public Tree(E value, Tree<E>... children) {
         this.value = value;
@@ -44,7 +46,7 @@ public class Tree<E> implements AbstractTree<E> {
     @Override
     public String getAsString() {
 
-       StringBuilder stringBuilder = new StringBuilder();
+        StringBuilder stringBuilder = new StringBuilder();
         this.dfs(this, stringBuilder, 0);
         return stringBuilder.toString().trim();
     }
@@ -70,6 +72,12 @@ public class Tree<E> implements AbstractTree<E> {
     @Override
     public List<E> getLeafKeys() {
         List<E> result = new ArrayList<>();
+        extracted(result);
+
+        return result.stream().sorted().collect(Collectors.toList());
+    }
+
+    private void extracted(List<E> result) {
         Deque<Tree<E>> queue = new ArrayDeque<>();
         queue.offer(this);
 
@@ -83,19 +91,76 @@ public class Tree<E> implements AbstractTree<E> {
                 queue.offer(child);
             }
         }
-
-        return result.stream().sorted().collect(Collectors.toList());
     }
 
     @Override
     public List<E> getMiddleKeys() {
-        return null;
+        List<E> result = new ArrayList<>();
+        Deque<Tree<E>> queue = new ArrayDeque<>();
+        queue.offer(this);
+
+        while (queue.size() > 0) {
+            Tree<E> current = queue.poll();
+
+            for (Tree<E> child : current.children) {
+                if (child.children.size() != 0 && child.parent != null) {
+                    result.add(child.value);
+                }
+                queue.offer(child);
+            }
+        }
+
+        return result;
     }
 
     @Override
     public Tree<E> getDeepestLeftmostNode() {
-        return null;
+
+        List<Tree<E>> tree = new ArrayList<>();
+        Deque<Tree<E>> queue = new ArrayDeque<>();
+        queue.offer(this);
+
+        while (queue.size() > 0) {
+            Tree<E> current = queue.poll();
+
+            for (Tree<E> child : current.children) {
+                tree.add(child);
+                queue.offer(child);
+            }
+        }
+
+        Tree<E> deepestLeftmostNode = null;
+
+        int maxPath = 0;
+
+        for (Tree<E> eTree : tree) {
+            if (eTree.isLeaf()) {
+                int currentPath = getStepsFromLeftToRoot(eTree);
+                if (currentPath > maxPath) {
+                    maxPath = currentPath;
+                    deepestLeftmostNode = eTree;
+                }
+            }
+        }
+
+        return deepestLeftmostNode;
     }
+
+    private int getStepsFromLeftToRoot(Tree<E> eTree) {
+        int count = 0;
+        Tree<E> current = eTree;
+        while (current.parent != null) {
+            count++;
+            current = current.parent;
+        }
+
+        return count;
+    }
+
+    private boolean isLeaf() {
+        return this.parent != null && this.children.size() == 0;
+    }
+
 
     @Override
     public List<E> getLongestPath() {
