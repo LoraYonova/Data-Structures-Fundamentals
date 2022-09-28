@@ -120,6 +120,15 @@ public class BinaryTree<E> implements AbstractBinaryTree<E> {
 
     @Override
     public void forEachInOrder(Consumer<E> consumer) {
+        if (this.getLeft() != null) {
+            this.getLeft().forEachInOrder(consumer);
+        }
+
+        consumer.accept(this.getKey());
+
+        if (this.getRight() != null) {
+            this.getRight().forEachInOrder(consumer);
+        }
 
     }
 }
