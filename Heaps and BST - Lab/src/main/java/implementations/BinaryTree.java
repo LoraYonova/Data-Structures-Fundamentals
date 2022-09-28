@@ -67,7 +67,19 @@ public class BinaryTree<E> implements AbstractBinaryTree<E> {
 
     @Override
     public List<AbstractBinaryTree<E>> preOrder() {
-        return null;
+
+        List<AbstractBinaryTree<E>> result = new ArrayList<>();
+        result.add(this);
+
+        if (this.getLeft() != null) {
+            result.addAll(this.getLeft().preOrder());
+        }
+
+        if (this.getRight() != null) {
+            result.addAll(this.getRight().preOrder());
+        }
+
+        return result;
     }
 
     @Override
