@@ -5,7 +5,7 @@ import interfaces.Entity;
 import model.BaseEntity;
 
 import java.util.*;
-import java.util.stream.Collectors;
+
 
 public class Loader implements Buffer {
 
@@ -120,7 +120,7 @@ public class Loader implements Buffer {
 
     @Override
     public List<Entity> getAll() {
-        return entities;
+        return new ArrayList<>(this.entities);
     }
 
     @Override
@@ -138,29 +138,12 @@ public class Loader implements Buffer {
     @Override
     public void removeSold() {
 
-        for (int i = 0; i < this.entities.size(); i++) {
-            Entity entity = this.entities.get(i);
-            BaseEntity.Status status = entity.getStatus();
-            if (BaseEntity.Status.SOLD.equals(status)) {
-                this.entities.remove(entity);
-            }
-        }
+     this.entities.removeIf(e -> e.getStatus() == BaseEntity.Status.SOLD);
 
     }
 
     @Override
     public Iterator<Entity> iterator() {
-        return new Iterator<Entity>() {
-            private int index = 0;
-            @Override
-            public boolean hasNext() {
-                return this.index < entities.size();
-            }
-
-            @Override
-            public Entity next() {
-                return getAll().get(index++);
-            }
-        };
+     return this.entities.iterator();
     }
 }
