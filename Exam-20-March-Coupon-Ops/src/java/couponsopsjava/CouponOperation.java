@@ -1,20 +1,30 @@
 package couponsopsjava;
 
 import java.util.*;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 public class CouponOperation implements ICouponOperation {
 
     private final Map<Website, List<Coupon>> websiteAndCoupon;
-    private final List<Coupon> coupons;
+//    private final List<Coupon> coupons;
 
     public CouponOperation() {
         websiteAndCoupon = new HashMap<>();
-        coupons = new ArrayList<>();
+//        coupons = new ArrayList<>();
     }
 
     public void registerSite(Website w) {
-        if (websiteAndCoupon.containsKey(w)) {
+        Website website = websiteAndCoupon
+                .keySet()
+                .stream()
+                .filter(web -> web.getDomain().equals(w.getDomain()))
+                .findFirst()
+                .orElse(null);
+
+        if (website != null) {
             throw new IllegalArgumentException();
         }
         websiteAndCoupon.put(w, new ArrayList<>());
@@ -22,43 +32,114 @@ public class CouponOperation implements ICouponOperation {
 
     public void addCoupon(Website w, Coupon c) {
 
-        if (!websiteAndCoupon.containsKey(w)) {
+        if (!websiteAndCoupon.containsKey(w))  {
             throw new IllegalArgumentException();
         }
+
+        if (websiteAndCoupon.get(w).contains(c)) {
+            throw new IllegalArgumentException();
+        }
+
+        websiteAndCoupon.get(w).add(c);
+
     }
 
     public Website removeWebsite(String domain) {
-        return null;
+
+        Website website = websiteAndCoupon.keySet().stream().filter(w -> w.getDomain().equals(domain)).findFirst().orElse(null);
+
+        if (website == null) {
+            throw new IllegalArgumentException();
+        }
+
+        websiteAndCoupon.remove(website);
+        return website;
     }
 
     public Coupon removeCoupon(String code) {
-        return null;
+        Coupon coupon = null;
+        for (Map.Entry<Website, List<Coupon>> websiteListEntry : websiteAndCoupon.entrySet()) {
+            coupon = websiteListEntry.getValue().stream().filter(c -> c.getCode().equals(code)).findFirst().orElse(null);
+            if (coupon == null) {
+                throw new IllegalArgumentException();
+            } else {
+                Website key = websiteListEntry.getKey();
+                websiteAndCoupon.get(key).remove(coupon);
+                break;
+            }
+
+        }
+
+        return coupon;
     }
 
     public boolean exist(Website w) {
-        return false;
+        return websiteAndCoupon.containsKey(w);
     }
 
     public boolean exist(Coupon c) {
+        Collection<List<Coupon>> values = websiteAndCoupon.values();
+        for (List<Coupon> value : values) {
+            if (value.contains(c)) {
+                return true;
+            }
+        }
         return false;
     }
 
     public Collection<Website> getSites() {
-        return null;
+        return websiteAndCoupon.keySet();
     }
 
     public Collection<Coupon> getCouponsForWebsite(Website w) {
-        return null;
+
+        if (!websiteAndCoupon.containsKey(w)) {
+            throw new IllegalArgumentException();
+        }
+
+        return websiteAndCoupon.get(w);
     }
 
     public void useCoupon(Website w, Coupon c) {
+
+        List<Coupon> coupon = websiteAndCoupon.get(w);
+        if (!websiteAndCoupon.containsKey(w)) {
+            throw new IllegalArgumentException();
+        }
+
+        if (!coupon.contains(c)) {
+            throw new IllegalArgumentException();
+        }
+
+        websiteAndCoupon.get(w).removeAll(coupon);
+
     }
 
     public Collection<Coupon> getCouponsOrderedByValidityDescAndDiscountPercentageDesc() {
-        return null;
+
+        Comparator<Coupon> reversed = Comparator.comparing(Coupon::getValidity).thenComparing(Coupon::getDiscountPercentage).reversed();
+        Collection<List<Coupon>> values = websiteAndCoupon.values();
+        List<Coupon> c = new ArrayList<>();
+        for (List<Coupon> value : values) {
+            c = value.stream().sorted(Comparator.comparing(Coupon::getValidity).thenComparing(Coupon::getDiscountPercentage).reversed()).collect(Collectors.toList());
+        }
+
+        return c.stream().sorted(reversed).collect(Collectors.toList());
     }
 
     public Collection<Website> getWebsitesOrderedByUserCountAndCouponsCountDesc() {
-        return null;
+
+      return websiteAndCoupon.entrySet().stream().sorted((o1, o2) -> {
+            int result = o1.getKey().getUsersCount() - o2.getKey().getUsersCount();
+            if (result == 0) {
+                result = o2.getValue().size() - o1.getValue().size();
+            }
+            return result;
+        }).map(Map.Entry::getKey)
+               .collect(Collectors.toList());
+
+
+
+
     }
 }
