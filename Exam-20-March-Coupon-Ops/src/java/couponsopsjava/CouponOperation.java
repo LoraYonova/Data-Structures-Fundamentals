@@ -118,13 +118,12 @@ public class CouponOperation implements ICouponOperation {
     public Collection<Coupon> getCouponsOrderedByValidityDescAndDiscountPercentageDesc() {
 
         Comparator<Coupon> reversed = Comparator.comparing(Coupon::getValidity).thenComparing(Coupon::getDiscountPercentage).reversed();
-        Collection<List<Coupon>> values = websiteAndCoupon.values();
-        List<Coupon> c = new ArrayList<>();
-        for (List<Coupon> value : values) {
-            c = value.stream().sorted(Comparator.comparing(Coupon::getValidity).thenComparing(Coupon::getDiscountPercentage).reversed()).collect(Collectors.toList());
-        }
+        List<Coupon> collect = null;
 
-        return c.stream().sorted(reversed).collect(Collectors.toList());
+        for (List<Coupon> value : websiteAndCoupon.values()) {
+            collect = value.stream().sorted(reversed).collect(Collectors.toList());
+        }
+        return collect;
     }
 
     public Collection<Website> getWebsitesOrderedByUserCountAndCouponsCountDesc() {
