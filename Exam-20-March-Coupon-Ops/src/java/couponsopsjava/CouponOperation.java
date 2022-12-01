@@ -9,11 +9,10 @@ import java.util.stream.Stream;
 public class CouponOperation implements ICouponOperation {
 
     private final Map<Website, List<Coupon>> websiteAndCoupon;
-//    private final List<Coupon> coupons;
 
     public CouponOperation() {
         websiteAndCoupon = new HashMap<>();
-//        coupons = new ArrayList<>();
+
     }
 
     public void registerSite(Website w) {
@@ -32,7 +31,7 @@ public class CouponOperation implements ICouponOperation {
 
     public void addCoupon(Website w, Coupon c) {
 
-        if (!websiteAndCoupon.containsKey(w))  {
+        if (!websiteAndCoupon.containsKey(w)) {
             throw new IllegalArgumentException();
         }
 
@@ -117,8 +116,8 @@ public class CouponOperation implements ICouponOperation {
 
     public Collection<Coupon> getCouponsOrderedByValidityDescAndDiscountPercentageDesc() {
 
-        Comparator<Coupon> reversed = Comparator.comparing(Coupon::getValidity).thenComparing(Coupon::getDiscountPercentage).reversed();
         List<Coupon> collect = null;
+        Comparator<Coupon> reversed = Comparator.comparing(Coupon::getValidity).thenComparing(Coupon::getDiscountPercentage).reversed();
 
         for (List<Coupon> value : websiteAndCoupon.values()) {
             collect = value.stream().sorted(reversed).collect(Collectors.toList());
@@ -128,16 +127,14 @@ public class CouponOperation implements ICouponOperation {
 
     public Collection<Website> getWebsitesOrderedByUserCountAndCouponsCountDesc() {
 
-      return websiteAndCoupon.entrySet().stream().sorted((o1, o2) -> {
-            int result = o1.getKey().getUsersCount() - o2.getKey().getUsersCount();
-            if (result == 0) {
-                result = o2.getValue().size() - o1.getValue().size();
-            }
-            return result;
-        }).map(Map.Entry::getKey)
-               .collect(Collectors.toList());
-
-
+        return websiteAndCoupon.entrySet().stream().sorted((o1, o2) -> {
+                    int result = o1.getKey().getUsersCount() - o2.getKey().getUsersCount();
+                    if (result == 0) {
+                        result = o2.getValue().size() - o1.getValue().size();
+                    }
+                    return result;
+                }).map(Map.Entry::getKey)
+                .collect(Collectors.toList());
 
 
     }
