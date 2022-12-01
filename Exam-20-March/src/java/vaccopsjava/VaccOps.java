@@ -5,8 +5,8 @@ import java.util.stream.Collectors;
 
 public class VaccOps implements IVaccOps {
 
-    private List<Patient> patients;
-    private Map<Doctor, List<Patient>> doctorsAndPatients;
+    private final List<Patient> patients;
+    private final Map<Doctor, List<Patient>> doctorsAndPatients;
 
     public VaccOps() {
 
@@ -62,7 +62,11 @@ public class VaccOps implements IVaccOps {
 
 
     public Doctor removeDoctor(String name) {
-        Doctor doctor = doctorsAndPatients.keySet().stream().filter(d -> d.getName().equals(name)).findFirst().orElse(null);
+        Doctor doctor = doctorsAndPatients
+                .keySet().stream()
+                .filter(d -> d.getName().equals(name))
+                .findFirst()
+                .orElse(null);
 
         if (doctor == null) {
             throw new IllegalArgumentException();
@@ -82,9 +86,9 @@ public class VaccOps implements IVaccOps {
             throw new IllegalArgumentException();
         }
 
-        List<Patient> patients = doctorsAndPatients.get(from);
-        doctorsAndPatients.get(from).removeAll(patients);
-        doctorsAndPatients.get(to).add(p);
+       if (doctorsAndPatients.get(from).remove(p)) {
+           doctorsAndPatients.get(to).add(p);
+       }
 
     }
 
