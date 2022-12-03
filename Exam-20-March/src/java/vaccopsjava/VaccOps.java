@@ -2,6 +2,7 @@ package vaccopsjava;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class VaccOps implements IVaccOps {
 
@@ -86,9 +87,9 @@ public class VaccOps implements IVaccOps {
             throw new IllegalArgumentException();
         }
 
-       if (doctorsAndPatients.get(from).remove(p)) {
-           doctorsAndPatients.get(to).add(p);
-       }
+        if (doctorsAndPatients.get(from).remove(p)) {
+            doctorsAndPatients.get(to).add(p);
+        }
 
     }
 
@@ -134,6 +135,31 @@ public class VaccOps implements IVaccOps {
     }
 
     public Collection<Patient> getPatientsSortedByDoctorsPopularityAscThenByHeightDescThenByAge() {
+
+
+//        List<Patient> patients = new ArrayList<>();
+//
+//        doctorsAndPatients.entrySet().stream().sorted((o1, o2) -> {
+//
+//            int result = o1.getKey().getPopularity() - o2.getKey().getPopularity();
+//            if (result == 0) {
+//                result = o2.getKey().getPopularity() - o1.getKey().getPopularity();
+//            }
+//            return result;
+//
+//        });
+//
+//        Comparator<Patient> patientComparator = Comparator.comparing(Patient::getHeight).reversed().thenComparing(Patient::getAge);
+//        for (List<Patient> value : doctorsAndPatients.values()) {
+//            value.sort(patientComparator);
+//            patients.addAll(value);
+//        }
+//
+//        return patients;
+//
+//    }
+//}
+
         Comparator<Patient> comparator = Comparator.comparingInt(Patient::getHeight).reversed().thenComparingInt(Patient::getAge);
         TreeMap<Integer, List<Patient>> map = new TreeMap<>();
         this.doctorsAndPatients
@@ -155,5 +181,5 @@ public class VaccOps implements IVaccOps {
         }
         return patientList;
     }
-
 }
+
