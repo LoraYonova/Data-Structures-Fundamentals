@@ -24,7 +24,7 @@ public class TripAdministratorImpl implements TripAdministrator {
     @Override
     public void addTrip(Company c, Trip t) {
 
-        if (!tripAdministrator.containsKey(c)) {
+        if (!tripAdministrator.containsKey(c) || tripAdministrator.get(c).contains(t)) {
             throw new IllegalArgumentException();
         }
 
@@ -74,14 +74,20 @@ public class TripAdministratorImpl implements TripAdministrator {
         if (!tripAdministrator.containsKey(c)) {
             throw new IllegalArgumentException();
         }
-        List<Trip> trips = tripAdministrator.get(c);
 
-        if(!trips.contains(t)) {
+        if (!tripAdministrator.get(c).contains(t)) {
+            throw new IllegalArgumentException();
+        }
+
+        if (!trip.contains(t)) {
             throw new IllegalArgumentException();
         }
 
         tripAdministrator.get(c).remove(t);
         trip.remove(t);
+
+
+
     }
 
     @Override
