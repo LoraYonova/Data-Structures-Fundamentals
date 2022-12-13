@@ -106,21 +106,17 @@ public class AirlinesManagerImpl implements AirlinesManager {
     @Override
     public Iterable<Airline> getAirlinesWithFlightsFromOriginToDestination(String origin, String destination) {
 
-     return airlineManager.entrySet()
-              .stream()
-              .filter(airlineListEntry -> {
-                  Collection<List<Flight>> values = airlineManager.values();
+        return airlineManager.entrySet()
+                .stream()
+                .filter(airlineListEntry -> {
 
-                  for (List<Flight> value : values) {
-                      List<Flight> collect = value.stream().filter(flight -> !flight.isCompleted())
-                              .filter(flight -> flight.getOrigin().equals(origin) && flight.getDestination().equals(destination)).collect(Collectors.toList());
+                    List<Flight> collect = airlineListEntry.getValue().stream().filter(flight -> !flight.isCompleted())
+                            .filter(flight -> flight.getOrigin().equals(origin) && flight.getDestination().equals(destination)).collect(Collectors.toList());
 
-                      if (!collect.isEmpty()) {
-                          return true;
-                      }
-                  }
-                 return false;
-              }).map(Map.Entry::getKey).collect(Collectors.toList());
+                    return !collect.isEmpty();
+
+                }).map(Map.Entry::getKey)
+                .collect(Collectors.toList());
 
     }
 }
