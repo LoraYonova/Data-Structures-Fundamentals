@@ -4,6 +4,7 @@ import org.softuni.exam.entities.Airline;
 import org.softuni.exam.entities.Flight;
 
 import java.util.*;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 public class AirlinesManagerImpl implements AirlinesManager {
@@ -84,17 +85,42 @@ public class AirlinesManagerImpl implements AirlinesManager {
     @Override
     public Iterable<Flight> getFlightsOrderedByNumberThenByCompletion() {
 
-       return flights.stream().sorted(Comparator.comparing(Flight::isCompleted).thenComparing(Flight::getNumber)).collect(Collectors.toList());
+        return flights.stream().sorted(Comparator.comparing(Flight::isCompleted).thenComparing(Flight::getNumber)).collect(Collectors.toList());
 
     }
 
     @Override
     public Iterable<Airline> getAirlinesOrderedByRatingThenByCountOfFlightsThenByName() {
-        return null;
+
+        return airlineManager.entrySet()
+                .stream()
+                .sorted(Collections.reverseOrder(Comparator.comparing(airlineListEntry -> airlineListEntry.getKey().getRating())))
+                .sorted(Collections.reverseOrder(Comparator.comparing(airlineListEntry -> airlineListEntry.getValue().size())))
+                .sorted(Comparator.comparing(airlineListEntry -> airlineListEntry.getKey().getName()))
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+
+
     }
 
     @Override
     public Iterable<Airline> getAirlinesWithFlightsFromOriginToDestination(String origin, String destination) {
-        return null;
+
+     return airlineManager.entrySet()
+              .stream()
+              .filter(airlineListEntry -> {
+                  Collection<List<Flight>> values = airlineManager.values();
+
+                  for (List<Flight> value : values) {
+                      List<Flight> collect = value.stream().filter(flight -> !flight.isCompleted())
+                              .filter(flight -> flight.getOrigin().equals(origin) && flight.getDestination().equals(destination)).collect(Collectors.toList());
+
+                      if (!collect.isEmpty()) {
+                          return true;
+                      }
+                  }
+                 return false;
+              }).map(Map.Entry::getKey).collect(Collectors.toList());
+
     }
 }
