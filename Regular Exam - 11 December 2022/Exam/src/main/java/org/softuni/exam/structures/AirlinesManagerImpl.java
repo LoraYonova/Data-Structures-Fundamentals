@@ -92,13 +92,26 @@ public class AirlinesManagerImpl implements AirlinesManager {
     @Override
     public Iterable<Airline> getAirlinesOrderedByRatingThenByCountOfFlightsThenByName() {
 
-        return airlineManager.entrySet()
+       return airlineManager.entrySet()
                 .stream()
-                .sorted(Collections.reverseOrder(Comparator.comparing(airlineListEntry -> airlineListEntry.getKey().getRating())))
-                .sorted(Collections.reverseOrder(Comparator.comparing(airlineListEntry -> airlineListEntry.getValue().size())))
-                .sorted(Comparator.comparing(airlineListEntry -> airlineListEntry.getKey().getName()))
-                .map(Map.Entry::getKey)
+                .sorted((o1, o2) -> {
+                    if (Double.compare(o2.getKey().getRating(), o1.getKey().getRating()) == 0) {
+                        if (o2.getValue().size() == o1.getValue().size()) {
+                            return o1.getKey().getName().compareTo(o2.getKey().getName());
+                        }
+                        return Integer.compare(o2.getValue().size(), o1.getValue().size());
+                    }
+                    return Double.compare(o2.getKey().getRating(), o1.getKey().getRating());
+                }).map(Map.Entry::getKey)
                 .collect(Collectors.toList());
+
+//        return airlineManager.entrySet()
+//                .stream()
+//                .sorted(Collections.reverseOrder(Comparator.comparing(airlineListEntry -> airlineListEntry.getKey().getRating())))
+//                .sorted(Collections.reverseOrder(Comparator.comparing(airlineListEntry -> airlineListEntry.getValue().size())))
+//                .sorted(Comparator.comparing(airlineListEntry -> airlineListEntry.getKey().getName()))
+//                .map(Map.Entry::getKey)
+//                .collect(Collectors.toList());
 
 
     }
