@@ -11,10 +11,12 @@ public class AirlinesManagerImpl implements AirlinesManager {
 
     private Map<Airline, List<Flight>> airlineManager;
     private List<Flight> flights;
+    private List<Flight> completed;
 
     public AirlinesManagerImpl() {
         this.airlineManager = new LinkedHashMap<>();
         this.flights = new ArrayList<>();
+        this.completed = new ArrayList<>();
     }
 
 
@@ -28,6 +30,10 @@ public class AirlinesManagerImpl implements AirlinesManager {
 
         if (!airlineManager.containsKey(airline)) {
             throw new IllegalArgumentException();
+        }
+
+        if (flight.isCompleted()) {
+            completed.add(flight);
         }
 
         airlineManager.get(airline).add(flight);
@@ -67,19 +73,20 @@ public class AirlinesManagerImpl implements AirlinesManager {
             throw new IllegalArgumentException();
         }
 
-        List<Flight> flights = airlineManager.get(airline);
-        if (!flights.contains(flight)) {
-            throw new IllegalArgumentException();
-        }
+       if (!flights.contains(flight)) {
+           throw new IllegalArgumentException();
+       }
 
-        Flight perform = this.flights.stream().filter(f -> f.getId().equals(flight.getId())).findFirst().get();
-        perform.setCompleted(true);
-        return perform;
+       flight.setCompleted(true);
+       airlineManager.get(airline).remove(flight);
+       airlineManager.get(airline).add(flight);
+       completed.add(flight);
+        return flight;
     }
 
     @Override
     public Iterable<Flight> getCompletedFlights() {
-        return flights.stream().filter(Flight::isCompleted).collect(Collectors.toList());
+        return completed;
     }
 
     @Override
