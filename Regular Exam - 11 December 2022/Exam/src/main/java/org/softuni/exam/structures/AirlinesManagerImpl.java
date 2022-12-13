@@ -3,10 +3,7 @@ package org.softuni.exam.structures;
 import org.softuni.exam.entities.Airline;
 import org.softuni.exam.entities.Flight;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class AirlinesManagerImpl implements AirlinesManager {
@@ -86,7 +83,9 @@ public class AirlinesManagerImpl implements AirlinesManager {
 
     @Override
     public Iterable<Flight> getFlightsOrderedByNumberThenByCompletion() {
-        return null;
+
+       return flights.stream().sorted(Comparator.comparing(Flight::isCompleted).thenComparing(Flight::getNumber)).collect(Collectors.toList());
+
     }
 
     @Override
