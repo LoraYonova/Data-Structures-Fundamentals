@@ -18,8 +18,8 @@ public class OlympicsImpl implements Olympics {
         if (competitors.containsKey(id)) {
             throw new IllegalArgumentException();
         }
-        Competitor competitor = new Competitor(id, name);
-        competitors.put(id, competitor);
+
+        competitors.put(id, new Competitor(id, name));
 
     }
 
@@ -29,8 +29,8 @@ public class OlympicsImpl implements Olympics {
         if (competitions.containsKey(id)) {
             throw new IllegalArgumentException();
         }
-        Competition competition = new Competition(name, id, score);
-        competitions.put(id, competition);
+
+        competitions.put(id, new Competition(name, id, score));
     }
 
     @Override
@@ -42,10 +42,10 @@ public class OlympicsImpl implements Olympics {
 
         Competition competition = competitions.get(competitionId);
         Competitor competitor = competitors.get(competitorId);
+        competition.getCompetitors().add(competitor);
         int score = competition.getScore();
         long totalScore = competitor.getTotalScore();
         competitor.setTotalScore(totalScore + score);
-        competition.getCompetitors().add(competitor);
 
     }
 
@@ -67,13 +67,13 @@ public class OlympicsImpl implements Olympics {
         competition.getCompetitors().remove(competitor);
         int score = competition.getScore();
         long totalScore = competitor.getTotalScore();
-        competitor.setTotalScore(score - totalScore);
+        competitor.setTotalScore(totalScore - score);
 
     }
 
     @Override
     public Iterable<Competitor> findCompetitorsInRange(long min, long max) {
-//        throw new UnsupportedOperationException();
+
         return competitors.values().stream().filter(c -> c.getTotalScore() > min && c.getTotalScore() <= max).collect(Collectors.toList());
 
     }
@@ -114,19 +114,18 @@ public class OlympicsImpl implements Olympics {
 
     @Override
     public int competitionsCount() {
-//        throw new UnsupportedOperationException();
-        return competitions.values().size();
+
+        return competitions.size();
     }
 
     @Override
     public int competitorsCount() {
-//        throw new UnsupportedOperationException();
-        return competitors.values().size();
+
+        return competitors.size();
     }
 
     @Override
     public Competition getCompetition(int id) {
-//        throw new UnsupportedOperationException();
 
         if (!competitions.containsKey(id)) {
             throw new IllegalArgumentException();

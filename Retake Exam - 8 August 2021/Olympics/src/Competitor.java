@@ -1,4 +1,7 @@
-public class Competitor  {
+import java.util.Comparator;
+import java.util.Objects;
+
+public class Competitor implements Comparator<Competitor>{
 
     private int id;
     private String name;
@@ -32,6 +35,25 @@ public class Competitor  {
 
     public void setTotalScore(long totalScore) {
         this.totalScore = totalScore;
+    }
+
+
+    @Override
+    public int compare(Competitor o1, Competitor o2) {
+        return o1.getId() - o2.getId();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Competitor)) return false;
+        Competitor that = (Competitor) o;
+        return id == that.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 
 }
