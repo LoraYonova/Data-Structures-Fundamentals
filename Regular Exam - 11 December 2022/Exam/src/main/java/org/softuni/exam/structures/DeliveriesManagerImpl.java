@@ -22,17 +22,11 @@ public class DeliveriesManagerImpl implements DeliveriesManager {
 
     @Override
     public void addDeliverer(Deliverer deliverer) {
-//        if (deliverySystem.containsKey(deliverer)) {
-//            throw new IllegalArgumentException();
-//        }
         deliverySystem.put(deliverer, new ArrayList<>());
     }
 
     @Override
     public void addPackage(Package _package) {
-//        if (packages.contains(_package)) {
-//            throw new IllegalArgumentException();
-//        }
         packages.add(_package);
         unassignedPackages.add(_package);
     }
@@ -90,12 +84,16 @@ public class DeliveriesManagerImpl implements DeliveriesManager {
     @Override
     public Iterable<Deliverer> getDeliverersOrderedByCountOfPackagesThenByName() {
 
-        return deliverySystem.entrySet()
+       return deliverySystem.entrySet()
                 .stream()
-                .sorted(Collections.reverseOrder(Comparator.comparing(delivererListEntry -> delivererListEntry.getValue().size())))
-                .sorted(Comparator.comparing(delivererListEntry -> delivererListEntry.getKey().getName()))
-                .map(Map.Entry::getKey)
+                .sorted((o1, o2) -> {
+                    if (o2.getValue().size() == o1.getValue().size()) {
+                        return o1.getKey().getName().compareTo(o2.getKey().getName());
+                    }
+                    return Integer.compare(o2.getValue().size(), o1.getValue().size());
+                }).map(Map.Entry::getKey)
                 .collect(Collectors.toList());
+
     }
 
 
