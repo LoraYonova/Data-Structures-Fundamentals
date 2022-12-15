@@ -14,6 +14,11 @@ public class Card {
         this.health = 20;
     }
 
+    public String getReversedName() {
+        StringBuilder builder = new StringBuilder(name);
+        return builder.reverse().toString();
+    }
+
     public String getName() {
         return name;
     }

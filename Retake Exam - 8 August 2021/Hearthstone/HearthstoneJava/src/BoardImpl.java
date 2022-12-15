@@ -1,31 +1,28 @@
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class BoardImpl implements Board {
 
-    private Map<String, List<Card>> listMap;
-    private List<Card> cards;
+    private Map<String, Card> listMap;
+
 
     public BoardImpl() {
         this.listMap = new HashMap<>();
-        this.cards = new ArrayList<>();
+
     }
 
     @Override
     public void draw(Card card) {
-       if (contains(card.getName())) {
-           throw new IllegalArgumentException();
-       }
+        if (contains(card.getName())) {
+            throw new IllegalArgumentException();
+        }
 
-       listMap.put(card.getName(), List.of(card));
+        listMap.put(card.getName(), card);
     }
 
     @Override
     public Boolean contains(String name) {
-       return listMap.containsKey(name);
+        return listMap.containsKey(name);
     }
 
     @Override
@@ -35,56 +32,95 @@ public class BoardImpl implements Board {
 
     @Override
     public void play(String attackerCardName, String attackedCardName) {
-        throw new UnsupportedOperationException();
+        if (!contains(attackerCardName) || !contains(attackedCardName)) {
+            throw new IllegalArgumentException();
+        }
+
+        Card attackerCard;
+        Card attackedCard;
+
+        attackerCard = this.listMap.get(attackerCardName);
+        attackedCard = this.listMap.get(attackedCardName);
+        if (attackerCard == null || attackedCard == null) {
+            throw new IllegalArgumentException();
+        }
+
+        if (attackerCard.getLevel() != attackedCard.getLevel()) {
+            throw new IllegalArgumentException();
+        }
+
+        if (attackedCard.getHealth() <= 0) {
+            return;
+        }
+
+        int damage = attackerCard.getDamage();
+        int health = attackedCard.getHealth();
+        if (damage >= health) {
+            int score = attackerCard.getScore();
+            attackerCard.setScore(score + attackedCard.getLevel());
+        }
+        attackedCard.setHealth(health - damage);
+
+
     }
 
     @Override
     public void remove(String name) {
-       if (!contains(name)) {
-           throw new IllegalArgumentException();
-       }
+        if (!contains(name)) {
+            throw new IllegalArgumentException();
+        }
 
-       listMap.remove(name);
+        listMap.remove(name);
     }
 
     @Override
     public void removeDeath() {
-        List<Card> collect = new ArrayList<>();
-        for (List<Card> value : listMap.values()) {
-            collect = value.stream().filter(c -> c.getHealth() <= 0).collect(Collectors.toList());
-        }
-
-        listMap.values().remove(collect);
+        listMap.entrySet().removeIf(c -> c.getValue().getHealth() <= 0);
     }
+
 
     @Override
     public Iterable<Card> getBestInRange(int start, int end) {
-        List<Card> collect = new ArrayList<>();
-        for (List<Card> value : listMap.values()) {
-             collect = value.stream().filter(c -> c.getScore() >= start && c.getScore() <= end).sorted((o1, o2) -> {
-                int result = o2.getLevel() - o1.getLevel();
-                if (result == 0) {
-                    result = o1.getLevel() - o2.getLevel();
-                }
-                return result;
-            }).collect(Collectors.toList());
-        }
 
-        return collect;
+        return listMap
+                .entrySet()
+                .stream()
+                .filter(c -> c.getValue().getScore() >= start && c.getValue().getScore() <= end)
+                .sorted((o1, o2) -> o2.getValue().getLevel() - o1.getValue().getLevel())
+                .map(Map.Entry::getValue)
+                .collect(Collectors.toList());
+
     }
 
     @Override
     public Iterable<Card> listCardsByPrefix(String prefix) {
-        throw new UnsupportedOperationException();
+
+        Comparator<Card> cardComparator = Comparator.comparing(Card::getReversedName).thenComparingInt(Card::getLevel);
+        return this.listMap.values()
+                .stream()
+                .filter(card -> card.getName().startsWith(prefix))
+                .sorted(cardComparator)
+                .collect(Collectors.toList());
+
     }
 
     @Override
     public Iterable<Card> searchByLevel(int level) {
-        throw new UnsupportedOperationException();
+
+        return listMap.entrySet().stream().filter(card -> card.getValue().getLevel() == level)
+                .sorted((o1, o2) -> o2.getValue().getScore() - o1.getValue().getScore())
+                .map(Map.Entry::getValue)
+                .collect(Collectors.toList());
+
     }
 
     @Override
     public void heal(int health) {
-        throw new UnsupportedOperationException();
+
+            listMap.values().stream()
+                    .min(Comparator.comparing(Card::getHealth))
+                    .ifPresent(c -> c.setHealth(c.getHealth() + health));
+
     }
+
 }
