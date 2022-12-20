@@ -80,15 +80,18 @@ public class MovieDatabaseImpl implements MovieDatabase {
         return movieDatabase.entrySet()
                 .stream()
                 .sorted((o1, o2) -> {
-                    double budget = o1.getValue().stream().max(Comparator.comparing(Movie::getBudget)).get().getBudget();
-                    double budget1 = o2.getValue().stream().max(Comparator.comparing(Movie::getBudget)).get().getBudget();
+                    double aDouble1 = o1.getValue().stream().map(Movie::getBudget).max(Comparator.comparing(budget -> budget)).get();
+                    double aDouble2 = o2.getValue().stream().map(Movie::getBudget).max(Comparator.comparing(budget -> budget)).get();
+
+//                    double budget = o1.getValue().stream().max(Comparator.comparing(Movie::getBudget)).get().getBudget();
+//                    double budget1 = o2.getValue().stream().max(Comparator.comparing(Movie::getBudget)).get().getBudget();
 
 
-                    if (Double.compare(budget1, budget) == 0) {
+                    if (Double.compare(aDouble1, aDouble2) == 0) {
                         return Integer.compare(o2.getValue().size(), o1.getValue().size());
                     }
 
-                    return Double.compare(budget1, budget);
+                    return Double.compare(aDouble1, aDouble2);
                 }).map(Map.Entry::getKey)
                 .collect(Collectors.toList());
     }
