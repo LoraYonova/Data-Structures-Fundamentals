@@ -119,20 +119,24 @@ public class ViTubeRepositoryImpl implements ViTubeRepository {
      return viTube.entrySet()
                 .stream()
                 .sorted((o1, o2) -> {
+
                     Video video1 = videos.get(o1.getValue().size());
                     Video video2 = videos.get(o2.getValue().size());
 
-                    if (video2.getViews() - video1.getViews() == 0) {
-                        if (video2.getLikes() - video1.getLikes() == 0) {
-                            if (video2.getDislikes() - video1.getDislikes() == 0) {
-                                return o1.getKey().getUsername().compareTo(o2.getKey().getUsername());
+                    if (video2.getViews() == video1.getViews()) {
+                        if (video2.getLikes() == video1.getLikes()) {
+                            if (video2.getDislikes() == video1.getDislikes()) {
+
+                            return o1.getKey().getUsername().compareTo(o2.getKey().getUsername());
                             }
-                            return video2.getDislikes() - video1.getDislikes();
+
+                            return Integer.compare(video2.getDislikes(), video1.getDislikes());
                         }
-                        return video2.getLikes() - video1.getLikes();
+
+                        return Integer.compare(video2.getLikes(), video1.getLikes());
                     }
 
-                        return video2.getViews() - video1.getViews();
+                        return Integer.compare(video2.getViews(), video1.getViews());
                 }).map(Map.Entry::getKey)
                 .collect(Collectors.toList());
     }
